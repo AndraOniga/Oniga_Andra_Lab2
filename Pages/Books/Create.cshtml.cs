@@ -26,7 +26,8 @@ namespace Oniga_Andra_Lab2.Pages.Books
             ViewData["AuthorID"] = new SelectList(_context.Set<Author>(), "ID",
         "FullName");
             var book = new Book();
-            book.BookCategories = new List<BookCategory>();
+            book.BookCategories= new List<BookCategory>();
+           
             PopulateAssignedCategoryData(_context, book);
 
             return Page();
@@ -51,16 +52,20 @@ namespace Oniga_Andra_Lab2.Pages.Books
                     newBook.BookCategories.Add(catToAdd);
                 }
             }
-            if (await TryUpdateModelAsync<Book>(
-            newBook,
-            "Book",
-            i => i.Title, i => i.Author,
-            i => i.Price, i => i.PublishingDate, i => i.Publisher))
-            {
-                _context.Book.Add(newBook);
-                await _context.SaveChangesAsync();
-                return RedirectToPage("./Index");
-            }
+            // if (await TryUpdateModelAsync<Book>(
+            // newBook,
+            // "Book",
+            // i => i.Title, i => i.Author,
+            // i => i.Price, i => i.PublishingDate, i => i.Publisher))
+            // {
+            //    _context.Book.Add(newBook);
+            //    await _context.SaveChangesAsync();
+            //   return RedirectToPage("./Index");
+            // }
+            _context.Book.Add(newBook);
+            await _context.SaveChangesAsync();
+            return RedirectToPage("./Index");
+
             PopulateAssignedCategoryData(_context, newBook);
             return Page();
         }
