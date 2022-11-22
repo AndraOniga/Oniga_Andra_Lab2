@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Oniga_Andra_Lab2.Models;
+using Oniga_Andra_Lab2.Models;
 
 namespace Oniga_Andra_Lab2.Areas.Identity.Pages.Account
 {
@@ -48,12 +49,16 @@ _context;
             _emailSender = emailSender;
             _context = context;
         }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         [BindProperty]
         public Member Member { get; set; }
-
         [BindProperty]
         public InputModel Input { get; set; }
-       
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -115,17 +120,20 @@ _context;
            _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             var user = CreateUser();
-            await _userStore.SetUserNameAsync(user, Input.Email,CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, Input.Email,
+           CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email,
            CancellationToken.None);
-            var result = await _userManager.CreateAsync(user,Input.Password);
+            var result = await _userManager.CreateAsync(user,
+           Input.Password);
             Member.Email = Input.Email;
             _context.Member.Add(Member);
             await _context.SaveChangesAsync();
             if (result.Succeeded)
             {
-                _logger.LogInformation("User created a new account withpassword.");
-               
+                _logger.LogInformation("User created a new account with password.");
+
+                var role = await _userManager.AddToRoleAsync(user, "User");
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await
                _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -142,13 +150,10 @@ _context;
                    returnUrl = returnUrl
                },
                 protocol: Request.Scheme);
-                await _emailSender.SendEmailAsync(Input.Email, "Confirmyouremail",
-               
-                $"Please confirm your account by <ahref = '{HtmlEncoder.Default.Encode(callbackUrl)}' > clicking here </ a >.");
+                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+  $"Please confirm your account by <ahref = '{HtmlEncoder.Default.Encode(callbackUrl)}' > clicking here </ a >.");
 
-
- if
-(_userManager.Options.SignIn.RequireConfirmedAccount)
+                if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {
                     return RedirectToPage("RegisterConfirmation", new
                     {
@@ -168,6 +173,9 @@ _context;
                    error.Description);
                 }
             }
+
+
+            // If we got this far, something failed, redisplay form
             return Page();
         }
 
